@@ -47,6 +47,10 @@ JNI_FUNC(get7zVersionInfo)(JNIEnv *env, jclass type);
 JNIEXPORT jint JNICALL
 JNI_FUNC(executeCommand)(JNIEnv *env, jclass type, jstring command_);
 
+
+JNIEXPORT jstring JNICALL
+JNI_FUNC(executeCommandString)(JNIEnv *env, jclass type, jstring command_);
+
 #ifdef __cplusplus
 }
 #endif

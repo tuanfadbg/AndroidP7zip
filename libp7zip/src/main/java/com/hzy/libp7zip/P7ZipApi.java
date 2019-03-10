@@ -20,6 +20,8 @@ public class P7ZipApi {
      */
     public static native int executeCommand(String command);
 
+    public static native String executeCommandString(String command);
+
     static {
         System.loadLibrary("p7zip");
     }

@@ -14,7 +14,15 @@ main(
 #endif
 );
 
+char * MY_CDECL
+mainString(
+#ifndef _WIN32
+        int numArgs, char *args[]
+#endif
+);
+
 int executeCommand(const char *cmd);
+char * executeCommandString(const char *cmd);
 
 #ifdef __cplusplus
 }
