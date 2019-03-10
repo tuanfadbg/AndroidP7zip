@@ -15,17 +15,3 @@ int executeCommand(const char *cmd) {
     }
     return main(argc, argv);
 }
-
-char * executeCommandString(const char *cmd) {
-    int argc = 0;
-    char temp[ARGC_MAX][ARGV_LEN_MAX];
-    char *argv[ARGC_MAX];
-    if (!str2args(cmd, temp, &argc)) {
-        return const_cast<char *>("7");
-    }
-    for (int i = 0; i < argc; i++) {
-        argv[i] = temp[i];
-        LOGD("arg[%d]:[%s]", i, argv[i]);
-    }
-    return mainString(argc, argv);
-}

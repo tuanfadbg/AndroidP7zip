@@ -15,15 +15,6 @@ JNI_FUNC(executeCommand)(JNIEnv *env, jclass type, jstring command_) {
     return ret;
 }
 
-JNIEXPORT jstring JNICALL
-JNI_FUNC(executeCommandString)(JNIEnv *env, jclass type, jstring command_) {
-    const char *command = env->GetStringUTFChars(command_, 0);
-    LOGI("CMD:[%s]", command);
-    jstring ret;
-    char *data = executeCommandString(command);
-    env->ReleaseStringUTFChars(command_, command);
 
-    ret = (*env).NewStringUTF(data);
-    return ret;
-}
+
 

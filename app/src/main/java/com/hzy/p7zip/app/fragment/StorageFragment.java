@@ -13,7 +13,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,7 +53,6 @@ public class StorageFragment extends Fragment
         View.OnLongClickListener {
 
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
-    private static final String TAG = StorageFragment.class.getSimpleName();
 
     @BindView(R.id.fragment_storage_path)
     RecyclerView mPathListView;
@@ -188,11 +186,9 @@ public class StorageFragment extends Fragment
     }
 
     private void onExtractFile(final FileInfo info) {
-//        String cmd = Command.getExtractCmd(info.getFilePath(),
-//                info.getFilePath() + "-ext");
-//
-        String cmd = Command.listFile(info.getFilePath());
-        runCommandString(cmd);
+        String cmd = Command.getExtractCmd(info.getFilePath(),
+                info.getFilePath() + "-ext");
+        runCommand(cmd);
     }
 
     private void onRemoveFile(final FileInfo info) {
@@ -240,26 +236,6 @@ public class StorageFragment extends Fragment
             public void subscribe(ObservableEmitter<Integer> e) throws Exception {
                 int ret = P7ZipApi.executeCommand(cmd);
                 e.onNext(ret);
-            }
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Consumer<Integer>() {
-                    @Override
-                    public void accept(Integer integer) throws Exception {
-                        dismissProgressDialog();
-                        showResult(integer);
-                        onRefresh();
-                    }
-                });
-    }
-
-    private void runCommandString(final String cmd) {
-        showProgressDialog();
-        Observable.create(new ObservableOnSubscribe<Integer>() {
-            @Override
-            public void subscribe(ObservableEmitter<Integer> e) throws Exception {
-                String ret = P7ZipApi.executeCommandString(cmd);
-                Log.e(TAG, "subscribe: " + ret );
-//                e.onNext(ret);
             }
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Integer>() {
