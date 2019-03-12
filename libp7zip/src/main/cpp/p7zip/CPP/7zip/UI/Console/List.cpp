@@ -29,6 +29,9 @@
 #include <ostream>
 #include <iostream>
 
+#define WINDOWS_TICK 10000000
+#define SEC_TO_UNIX_EPOCH 11644473600LL
+
 using namespace NWindows;
 using namespace NCOM;
 
@@ -389,6 +392,10 @@ void CFieldPrinter::AddProp(const wchar_t *name, PROPID propID, bool isRawProp) 
             f.NameA = sA;
     }
     _fields.Add(f);
+}
+
+unsigned int WindowsTickToUnixSeconds(long long windowsTicks) {
+    return (unsigned) (windowsTicks / WINDOWS_TICK - SEC_TO_UNIX_EPOCH);
 }
 
 HRESULT CFieldPrinter::AddMainProps(IInArchive *archive) {
@@ -1281,9 +1288,7 @@ HRESULT ListArchives(CCodecs *codecs,
 
             fwrite(fp.FilePath.Ptr(), wcslen(fp.FilePath.Ptr()) * sizeof(wchar_t), 1, outFile);
 
-            fwrite("\", \"size\":\"", sizeof("\", \"size\":\""), 1, outFile);
             long size = fp.getSize(i, st);
-            __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "756 %li", size);
 
             int count = 0;
             char sizeChar[100];
@@ -1330,7 +1335,8 @@ HRESULT ListArchives(CCodecs *codecs,
                         sizeChar[count] = '9';
                         break;
                     }
-                    default:break;
+                    default:
+                        break;
                 }
                 size = size / 10;
                 count++;
@@ -1341,7 +1347,76 @@ HRESULT ListArchives(CCodecs *codecs,
             }
 
 
+            // write size
+            fwrite("\", \"size\":\"", sizeof("\", \"size\":\""), 1, outFile);
+
             fwrite(resultSize, sizeof(resultSize), 1, outFile);
+
+            // end write size
+
+            // write time
+            int time = WindowsTickToUnixSeconds((long long) st.MTime.Val.dwLowDateTime +
+                                                pow(2, 32) * st.MTime.Val.dwHighDateTime);
+            int countTime = 0;
+            char timeChar[100];
+            while (time > 0) {
+                long le = time % 10;
+                switch (le) {
+                    case 0: {
+                        timeChar[count] = '0';
+                        break;
+                    }
+                    case 1: {
+                        timeChar[count] = '1';
+                        break;
+                    }
+                    case 2: {
+                        timeChar[count] = '2';
+                        break;
+                    }
+                    case 3: {
+                        timeChar[count] = '3';
+                        break;
+                    }
+                    case 4: {
+                        timeChar[count] = '4';
+                        break;
+                    }
+                    case 5: {
+                        timeChar[count] = '5';
+                        break;
+                    }
+                    case 6: {
+                        timeChar[count] = '6';
+                        break;
+                    }
+                    case 7: {
+                        timeChar[count] = '7';
+                        break;
+                    }
+                    case 8: {
+                        timeChar[count] = '8';
+                        break;
+                    }
+                    case 9: {
+                        timeChar[count] = '9';
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                time = time / 10;
+                countTime++;
+            }
+            char resultTime[countTime];
+            for (int i = 0; i < countTime; i++) {
+                resultTime[countTime - i - 1] = timeChar[i];
+            }
+
+
+            fwrite("\", \"time\":\"", sizeof("\", \"time\":\""), 1, outFile);
+
+            fwrite(resultTime, sizeof(resultTime), 1, outFile);
 
             if (i == numItems - 1) {
                 fwrite("\"}", sizeof("\"}"), 1, outFile);
@@ -1350,6 +1425,8 @@ HRESULT ListArchives(CCodecs *codecs,
                 fwrite("\"},", sizeof("\"},"), 1, outFile);
                 fwrite("\n", sizeof("\n"), 1, outFile);
             }
+            // end write time
+
 
             if (isAltStream && !showAltStreams) {
                 continue;
@@ -1411,3 +1488,4 @@ HRESULT ListArchives(CCodecs *codecs,
 
     return S_OK;
 }
+
