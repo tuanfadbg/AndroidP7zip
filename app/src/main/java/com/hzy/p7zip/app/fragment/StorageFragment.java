@@ -1,6 +1,7 @@
 package com.hzy.p7zip.app.fragment;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -13,14 +14,18 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.blankj.utilcode.util.SnackbarUtils;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.hzy.libp7zip.ExitCode;
 import com.hzy.libp7zip.P7ZipApi;
+import com.hzy.p7zip.app.ContentArchive;
 import com.hzy.p7zip.app.R;
 import com.hzy.p7zip.app.adapter.FileItemAdapter;
 import com.hzy.p7zip.app.adapter.PathItemAdapter;
@@ -28,8 +33,12 @@ import com.hzy.p7zip.app.bean.FileInfo;
 import com.hzy.p7zip.app.command.Command;
 import com.hzy.p7zip.app.utils.FileUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +50,10 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import ir.mahdi.mzip.rar.Archive;
+import ir.mahdi.mzip.rar.RarArchive;
+import ir.mahdi.mzip.rar.exception.RarException;
+import ir.mahdi.mzip.rar.rarfile.FileHeader;
 
 import static android.support.v7.widget.LinearLayoutManager.HORIZONTAL;
 
@@ -53,6 +66,7 @@ public class StorageFragment extends Fragment
         View.OnLongClickListener {
 
     private static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
+    private static final String TAG = StorageFragment.class.getSimpleName();
 
     @BindView(R.id.fragment_storage_path)
     RecyclerView mPathListView;
@@ -166,7 +180,9 @@ public class StorageFragment extends Fragment
                                     onCompressFile(info);
                                     break;
                                 case 1:
-                                    onExtractFile(info);
+//                                    onExtractFile(info);
+                                    onListFile(info);
+
                                     break;
                                 case 2:
                                     onRemoveFile(info);
@@ -183,6 +199,44 @@ public class StorageFragment extends Fragment
         String cmd = Command.getCompressCmd(info.getFilePath(),
                 info.getFilePath() + ".7z", "7z");
         runCommand(cmd);
+    }
+
+    private void onListFile(FileInfo info) {
+        String cmd = Command.listFile(info.getFilePath());
+        runCommand(cmd);
+//        RarArchive rarArchive = new RarArchive();
+//        File file = new File(info.getFilePath());
+//
+//        rarArchive.extractArchive(file, file.getParentFile());
+//        Archive arch = null;
+//
+//        try {
+//            File file = new File(info.getFilePath());
+//            arch = new Archive(file);
+//        } catch (RarException var8) {
+//            Log.e(TAG, "RarException: ");
+//            ;
+//        } catch (IOException var9) {
+//            Log.e(TAG, "IOException: ");
+//
+//        }
+//
+//        if (arch != null) {
+////            if (arch.isEncrypted()) {
+////                return;
+////            }
+//
+//            FileHeader fh = null;
+//
+//            while (true) {
+//                fh = arch.nextFileHeader();
+//                if (fh == null) {
+//                    break;
+//                }
+//                Log.e(TAG, "onListFile: " + fh.getFileNameString());
+//            }
+//
+//        }
     }
 
     private void onExtractFile(final FileInfo info) {
@@ -229,18 +283,36 @@ public class StorageFragment extends Fragment
         }
     }
 
+    @SuppressLint("CheckResult")
     private void runCommand(final String cmd) {
         showProgressDialog();
         Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
             public void subscribe(ObservableEmitter<Integer> e) throws Exception {
                 int ret = P7ZipApi.executeCommand(cmd);
+                Log.e(TAG, "subscribe: " + ret);
                 e.onNext(ret);
             }
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<Integer>() {
                     @Override
                     public void accept(Integer integer) throws Exception {
+                        String fileName = "/storage/emulated/0/test.dat";
+                        File file = new File(fileName);
+                        FileReader fr = new FileReader(file);
+                        BufferedReader br = new BufferedReader(fr);
+                        StringBuilder data = new StringBuilder();
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            //process the line
+                            data.append(line.replaceAll("[^\\p{L}.,&?|/-_+=!~;:{}\"]", ""));
+                            Log.e(TAG, "accept: " + line.replaceAll("[^\\p{L}.,&?|/-_+=!~;:{}\"]", ""));
+                        }
+
+                        List<ContentArchive> contentArchive = new ArrayList<>();
+                        Gson gson = new Gson();
+                        contentArchive = gson.fromJson(data.toString(), new TypeToken<List<ContentArchive>>(){}.getType());
+
                         dismissProgressDialog();
                         showResult(integer);
                         onRefresh();

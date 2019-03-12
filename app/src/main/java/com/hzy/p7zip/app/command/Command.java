@@ -13,4 +13,8 @@ public class Command {
     public static String getCompressCmd(String filePath, String outPath, String type) {
         return String.format("7z a -t%s '%s' '%s'", type, outPath, filePath);
     }
+
+    public static String listFile(String filePath) {
+        return String.format("7z l -slt '%s'", filePath);
+    }
 }

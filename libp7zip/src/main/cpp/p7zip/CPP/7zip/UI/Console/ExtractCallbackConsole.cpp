@@ -10,7 +10,9 @@
 #include "../../../Windows/TimeUtils.h"
 #include "../../../Windows/ErrorMsg.h"
 #include "../../../Windows/PropVariantConv.h"
+#include <android/log.h>
 
+#define APPNAME "MyApp"
 #ifndef _7ZIP_ST
 #include "../../../Windows/Synchronization.h"
 #endif
@@ -121,6 +123,8 @@ void CExtractScanConsole::PrintStat(const CDirItemsStat &st)
     AString s;
     Print_DirItemsStat(s, st);
     *_so << s << endl;
+    __android_log_print(ANDROID_LOG_VERBOSE, APPNAME, "ExtractCallbackConsole %s", s.Ptr());
+
   }
 }
 

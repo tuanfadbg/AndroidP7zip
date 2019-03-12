@@ -13,6 +13,9 @@
 #include "../../PropID.h"
 
 #include "PropIDUtils.h"
+#include <android/log.h>
+
+#define APPNAME "MyApp"
 
 #define Get16(x) GetUi16(x)
 #define Get32(x) GetUi32(x)
@@ -154,7 +157,7 @@ void ConvertPropertyToShortString(char *dest, const PROPVARIANT &prop, PROPID pr
       return;
     }
   }
-  
+
   ConvertPropVariantToShortString(prop, dest);
 }
 
