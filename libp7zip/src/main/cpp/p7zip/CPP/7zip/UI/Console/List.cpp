@@ -12,7 +12,7 @@
 #include "../../../Windows/FileDir.h"
 #include "../../../Windows/PropVariant.h"
 #include "../../../Windows/PropVariantConv.h"
-
+#include <string>
 #include "../Common/OpenArchive.h"
 #include "../Common/PropIDUtils.h"
 
@@ -333,6 +333,8 @@ public:
     void PrintSum(const CListStat &st, UInt64 numDirs, const char *str);
 
     void PrintSum(const CListStat2 &stat2);
+
+    char *LongToChar(long size);
 };
 
 void CFieldPrinter::Init(const CFieldInfoInit *standardFieldTable, unsigned numItems) {
@@ -843,6 +845,66 @@ void CFieldPrinter::PrintSum(const CListStat2 &stat2) {
     }
 }
 
+//char *CFieldPrinter::LongToChar(long longValue) {
+//    int count = 0;
+//    char sizeChar[100];
+//    while (longValue > 0) {
+//        long le = longValue % 10;
+//        switch (le) {
+//            case 0: {
+//                sizeChar[count] = '0';
+//                break;
+//            }
+//            case 1: {
+//                sizeChar[count] = '1';
+//                break;
+//            }
+//            case 2: {
+//                sizeChar[count] = '2';
+//                break;
+//            }
+//            case 3: {
+//                sizeChar[count] = '3';
+//                break;
+//            }
+//            case 4: {
+//                sizeChar[count] = '4';
+//                break;
+//            }
+//            case 5: {
+//                sizeChar[count] = '5';
+//                break;
+//            }
+//            case 6: {
+//                sizeChar[count] = '6';
+//                break;
+//            }
+//            case 7: {
+//                sizeChar[count] = '7';
+//                break;
+//            }
+//            case 8: {
+//                sizeChar[count] = '8';
+//                break;
+//            }
+//            case 9: {
+//                sizeChar[count] = '9';
+//                break;
+//            }
+//            default:
+//                break;
+//        }
+//        longValue = longValue / 10;
+//        count++;
+//    }
+//    char resultSize[count];
+//    for (int i = 0; i < count; i++) {
+//        resultSize[count - i - 1] = sizeChar[i];
+//    }
+//    return resultSize;
+//
+//}
+
 static HRESULT
 GetUInt64Value(IInArchive *archive, UInt32 index, PROPID propID, CListUInt64Def &value) {
     value.Val = 0;
@@ -1222,7 +1284,26 @@ HRESULT ListArchives(CCodecs *codecs,
 
 //        std::locale::global(std::locale(""));
 //        std::wofstream os("/storage/emulated/0/test.dat", std::ios::out | std::ios::binary);
-        FILE *outFile = fopen("/storage/emulated/0/test.dat", "w+,ccs=utf-16");
+        pid_t pid = getpid();
+        char path[64] = {0};
+        sprintf(path, "/proc/%d/cmdline", pid);
+        FILE *cmdline = fopen(path, "r");
+        char application_id[64] = {0};
+        if (cmdline) {
+            fread(application_id, sizeof(application_id), 1, cmdline);
+            __android_log_print(ANDROID_LOG_DEBUG, APPNAME, "application id %s\n", application_id);
+            fclose(cmdline);
+        }
+        std::string androidPrefix = std::string("/storage/emulated/0/Android/data/");
+        std::string appicationId = std::string(application_id);
+        std::string androidFolder = std::string("/files/value.dat");
+
+        std::string file = androidPrefix + appicationId + androidFolder;
+
+        char *cstr = new char[file.length() + 1];
+        strcpy(cstr, file.c_str());
+
+        FILE *outFile = fopen(cstr, "w+,ccs=utf-16");
         fwrite("[", sizeof("["), 1, outFile);
 
         for (UInt32 i = 0; i < numItems; i++) {
@@ -1363,43 +1444,43 @@ HRESULT ListArchives(CCodecs *codecs,
                 long le = time % 10;
                 switch (le) {
                     case 0: {
-                        timeChar[count] = '0';
+                        timeChar[countTime] = '0';
                         break;
                     }
                     case 1: {
-                        timeChar[count] = '1';
+                        timeChar[countTime] = '1';
                         break;
                     }
                     case 2: {
-                        timeChar[count] = '2';
+                        timeChar[countTime] = '2';
                         break;
                     }
                     case 3: {
-                        timeChar[count] = '3';
+                        timeChar[countTime] = '3';
                         break;
                     }
                     case 4: {
-                        timeChar[count] = '4';
+                        timeChar[countTime] = '4';
                         break;
                     }
                     case 5: {
-                        timeChar[count] = '5';
+                        timeChar[countTime] = '5';
                         break;
                     }
                     case 6: {
-                        timeChar[count] = '6';
+                        timeChar[countTime] = '6';
                         break;
                     }
                     case 7: {
-                        timeChar[count] = '7';
+                        timeChar[countTime] = '7';
                         break;
                     }
                     case 8: {
-                        timeChar[count] = '8';
+                        timeChar[countTime] = '8';
                         break;
                     }
                     case 9: {
-                        timeChar[count] = '9';
+                        timeChar[countTime] = '9';
                         break;
                     }
                     default:

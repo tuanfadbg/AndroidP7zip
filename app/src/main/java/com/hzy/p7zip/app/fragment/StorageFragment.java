@@ -204,39 +204,6 @@ public class StorageFragment extends Fragment
     private void onListFile(FileInfo info) {
         String cmd = Command.listFile(info.getFilePath());
         runCommand(cmd);
-//        RarArchive rarArchive = new RarArchive();
-//        File file = new File(info.getFilePath());
-//
-//        rarArchive.extractArchive(file, file.getParentFile());
-//        Archive arch = null;
-//
-//        try {
-//            File file = new File(info.getFilePath());
-//            arch = new Archive(file);
-//        } catch (RarException var8) {
-//            Log.e(TAG, "RarException: ");
-//            ;
-//        } catch (IOException var9) {
-//            Log.e(TAG, "IOException: ");
-//
-//        }
-//
-//        if (arch != null) {
-////            if (arch.isEncrypted()) {
-////                return;
-////            }
-//
-//            FileHeader fh = null;
-//
-//            while (true) {
-//                fh = arch.nextFileHeader();
-//                if (fh == null) {
-//                    break;
-//                }
-//                Log.e(TAG, "onListFile: " + fh.getFileNameString());
-//            }
-//
-//        }
     }
 
     private void onExtractFile(final FileInfo info) {
@@ -297,7 +264,7 @@ public class StorageFragment extends Fragment
                 .subscribe(new Consumer<Integer>() {
                     @Override
                     public void accept(Integer integer) throws Exception {
-                        String fileName = "/storage/emulated/0/test.dat";
+                        String fileName = "/storage/emulated/0/Android/data/" + getActivity().getPackageName() + "/files/value.dat";
                         File file = new File(fileName);
                         FileReader fr = new FileReader(file);
                         BufferedReader br = new BufferedReader(fr);
@@ -311,7 +278,8 @@ public class StorageFragment extends Fragment
 
                         List<ContentArchive> contentArchive = new ArrayList<>();
                         Gson gson = new Gson();
-                        contentArchive = gson.fromJson(data.toString(), new TypeToken<List<ContentArchive>>(){}.getType());
+                        contentArchive = gson.fromJson(data.toString(), new TypeToken<List<ContentArchive>>() {
+                        }.getType());
 
                         dismissProgressDialog();
                         showResult(integer);

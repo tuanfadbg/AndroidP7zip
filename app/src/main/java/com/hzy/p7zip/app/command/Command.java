@@ -14,6 +14,14 @@ public class Command {
         return String.format("7z a -t%s '%s' '%s'", type, outPath, filePath);
     }
 
+    public static String getExtractPasswordCmd(String archivePath, String outPath, String password) {
+        return String.format("7z x '%s' '-o%s' -aoa -p%s", archivePath, outPath, password);
+    }
+
+    public static String getCompressPasswordCmd(String filePath, String outPath, String type, String password) {
+        return String.format("7z a -t%s '%s' '%s' -p%s", type, outPath, filePath, password);
+    }
+
     public static String listFile(String filePath) {
         return String.format("7z l -slt '%s'", filePath);
     }
