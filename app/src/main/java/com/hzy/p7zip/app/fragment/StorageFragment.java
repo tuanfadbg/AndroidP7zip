@@ -203,12 +203,12 @@ public class StorageFragment extends Fragment
 
     private void onListFile(FileInfo info) {
         String cmd = Command.listFile(info.getFilePath());
-        runCommand(cmd);
+        runCommandListFile(cmd);
     }
 
     private void onExtractFile(final FileInfo info) {
-        String cmd = Command.getExtractCmd(info.getFilePath(),
-                info.getFilePath() + "-ext");
+        String cmd = Command.getExtractPasswordCmd(info.getFilePath(),
+                info.getFilePath() + "-ext", "1234");
         runCommand(cmd);
     }
 
@@ -252,6 +252,27 @@ public class StorageFragment extends Fragment
 
     @SuppressLint("CheckResult")
     private void runCommand(final String cmd) {
+        showProgressDialog();
+        Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(ObservableEmitter<Integer> e) throws Exception {
+                int ret = P7ZipApi.executeCommand(cmd);
+                Log.e(TAG, "subscribe: " + ret);
+                e.onNext(ret);
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Consumer<Integer>() {
+                    @Override
+                    public void accept(Integer integer) throws Exception {
+                        dismissProgressDialog();
+                        showResult(integer);
+                        onRefresh();
+                    }
+                });
+    }
+
+    @SuppressLint("CheckResult")
+    private void runCommandListFile(final String cmd) {
         showProgressDialog();
         Observable.create(new ObservableOnSubscribe<Integer>() {
             @Override
