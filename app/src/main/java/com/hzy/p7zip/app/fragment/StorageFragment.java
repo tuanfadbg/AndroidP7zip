@@ -197,7 +197,7 @@ public class StorageFragment extends Fragment
 
     private void onCompressFile(FileInfo info) {
         String cmd = Command.getCompressCmd(info.getFilePath(),
-                info.getFilePath() + ".7z", "7z");
+                info.getFilePath() + ".zip", "zip");
         runCommand(cmd);
     }
 
