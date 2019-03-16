@@ -15,6 +15,11 @@ import java.util.List;
 
 public class FileUtils {
 
+    public static String ZIP = "zip";
+    public static String RAR = "rar";
+    public static String BZ2 = "bz2";
+    public static String TAR = "tar";
+
     private static final String[] ARCHIVE_ARRAY = {"rar", "zip", "7z", "bz2", "bzip2",
             "tbz2", "tbz", "gz", "gzip", "tgz", "tar", "xz", "txz"};
 
@@ -52,6 +57,40 @@ public class FileUtils {
             }
         }
         return false;
+    }
+
+    public static String getFolderExtractFromPath(String path) {
+        String suffix = path.substring(0, path.lastIndexOf("."));
+        String currentPathExtract = suffix;
+        File file;
+        int count = 0;
+
+        while (true) {
+            file = new File(currentPathExtract);
+            if (file.exists()) {
+                count++;
+                currentPathExtract = suffix + "(" + count + ")";
+            } else {
+                return currentPathExtract;
+            }
+        }
+    }
+
+    public static String getArchiveFromPath(String suffix, String type) {
+        String currentPathExtract = suffix + "." + type;
+        File file;
+        int count = 0;
+
+        while (true) {
+            file = new File(currentPathExtract);
+            if (file.exists()) {
+                count++;
+                currentPathExtract = suffix + "(" + count + ")." + type;
+            } else {
+                break;
+            }
+        }
+        return currentPathExtract;
     }
 
     public static List<FileInfo> getInfoListFromPath(String path) {

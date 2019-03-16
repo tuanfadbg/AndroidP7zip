@@ -177,11 +177,11 @@ public class StorageFragment extends Fragment
                                                 int position, CharSequence text) {
                             switch (position) {
                                 case 0:
-                                    onCompressFile(info);
+                                    onCompressFile(info, "zip");
                                     break;
                                 case 1:
-//                                    onExtractFile(info);
-                                    onListFile(info);
+                                    onExtractFile(info);
+//                                    onListFile(info);
 
                                     break;
                                 case 2:
@@ -195,9 +195,10 @@ public class StorageFragment extends Fragment
         return true;
     }
 
-    private void onCompressFile(FileInfo info) {
+    private void onCompressFile(FileInfo info, String type) {
+        String getZipFromPath = FileUtils.getArchiveFromPath(info.getFilePath(), type);
         String cmd = Command.getCompressCmd(info.getFilePath(),
-                info.getFilePath() + ".zip", "zip");
+                getZipFromPath, type);
         runCommand(cmd);
     }
 
@@ -207,8 +208,9 @@ public class StorageFragment extends Fragment
     }
 
     private void onExtractFile(final FileInfo info) {
-        String cmd = Command.getExtractPasswordCmd(info.getFilePath(),
-                info.getFilePath() + "-ext", "1234");
+        String extractFilePath = FileUtils.getFolderExtractFromPath(info.getFilePath());
+        String cmd = Command.getExtractCmd(info.getFilePath(),
+                extractFilePath);
         runCommand(cmd);
     }
 
